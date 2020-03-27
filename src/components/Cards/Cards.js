@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import './Cards.scss';
-import {Card} from '../Card/Card';
+import Card from '../Card/Card';
 
 class Cards extends Component{
 
 	render() {
-		const {moreDetails, missions, addToFavourites} = this.props;
+		const {missions} = this.props;
 		return (
 			<div className="cards">
 			{missions.map( element => <Card 
@@ -15,8 +15,6 @@ class Cards extends Component{
 										launchYear={element.launch_year}
 										imageLink={element.links.mission_patch_small}
 										missionName={element.mission_name}
-										moreDetails={moreDetails}
-										addToFavourites={addToFavourites}
 										element={element}
 									  />
 						)

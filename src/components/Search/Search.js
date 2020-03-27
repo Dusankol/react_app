@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
-import './Search.scss'
+import './Search.scss';
+import {connect} from 'react-redux';
+import * as actionTypes from '../../store/ActionTypes';
 
 
 class Search extends Component {
@@ -16,10 +18,16 @@ class Search extends Component {
 	}
 
 	componentDidUpdate(){
-		const {onDataSearch} = this.props;
 		const {searchedTerm} = this.state;
-		onDataSearch(searchedTerm);
+		this.dataSearch(searchedTerm);
 	}
+
+	dataSearch(text) {
+	    const filteredData = this.props.data.filter( item => {
+	      return item.mission_name.toLowerCase().includes(text.toLowerCase().trim())
+	    })
+	    this.props.onFilteredDataUpdate(filteredData);
+	  }
 
 	addValue(event) {
 		this.setState({
@@ -42,4 +50,16 @@ class Search extends Component {
 	}
 }
 
-export {Search};
+const mapStateToProps = state => {
+  return {
+    data : state.data,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onFilteredDataUpdate : filteredData => dispatch({type: actionTypes.FILTER_DATA_UPDATE , filteredData: filteredData})
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Search);

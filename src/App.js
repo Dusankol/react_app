@@ -6,15 +6,10 @@ import {Header} from './components/Header/Header';
 import {Favourites} from './components/Favourites/Favourites';
 import {Communicators} from './Communicators';
 import {Switch, Route} from 'react-router-dom';
+import {connect} from 'react-redux';
+import * as actionTypes from './store/ActionTypes';
 
 class App extends React.Component {
-
-  state = {
-    data : [],
-    more : '',
-    filteredData : [],
-    favouritesData : [],
-  }
 
   componentDidMount(){
     this.takeData();
@@ -35,33 +30,9 @@ class App extends React.Component {
   }
 
   sort() {
-    const myArr = [...this.state.data];
-    const filterArr = [...this.state.filteredData];
-    myArr.sort(this.sortFlights);
+    const filterArr = [...this.props.filteredData];
     filterArr.sort(this.sortFlights);
-    this.setState({
-      data : myArr,
-      filteredData : filterArr,
-    })
-  }
-
-  dataSearch(text) {
-    const filteredData = this.state.data.filter( item => {
-      return item.mission_name.toLowerCase().includes(text.toLowerCase().trim())
-    })
-      this.setState({
-        filteredData : filteredData,
-      })
-  }
-
-  moreDetails(flightNumber){
-    Communicators.More(flightNumber)
-      .then( myJson => {
-        this.setState({
-          more: myJson,
-        })
-      })
-      .catch( error => alert(`Error: ${error}`));
+    this.props.onFilteredDataUpdate(filterArr);
   }
 
   takeData() {
@@ -69,11 +40,8 @@ class App extends React.Component {
       .then( myJson =>  {
         const formatedData = this.formatData(myJson);
         const favouriteData = formatedData.filter( item => item.favourite);
-        this.setState({
-          data : formatedData,
-          favouritesData : favouriteData,
-          filteredData : formatedData
-        })  
+        this.props.onDataUpdate(formatedData,favouriteData); 
+
       })
       .catch( error => alert(`Error: ${error}`));
   }
@@ -97,53 +65,24 @@ class App extends React.Component {
       return data
   }
 
-  takeFavourites() {
-    Communicators.Fetch()
-      .then( myJson =>  {
-        const formatedData = this.formatData(myJson);
-        const favouriteData = formatedData.filter( item => item.favourite);
-        this.setState({
-          favouritesData : favouriteData,
-        })  
-      })
-      .catch( error => alert(`Error: ${error}`));
-  }
-
-  addToFavourites(element) {
-    element.favourite = !element.favourite;
-    Communicators.Put(element)
-    .then((response) => {
-      if (response.ok) {
-        this.takeFavourites();
-      }
-    })
-    .catch( error => alert(`Error: ${error}`));
-  }
-
-
   render() {
-    const {filteredData, more, favouritesData} = this.state;
-    const {flight_number, launch_year, mission_name, details, links, launch_success, rocket} = this.state.more;
+    const {filteredData, more, favouritesData} = this.props;
+    const {flight_number, launch_year, mission_name, details, links, launch_success, rocket} = this.props.more;
     
     return (
         <Fragment>
           <Switch>
             <Route exact path="/" >
-                <Header  getSearched={text => this.dataSearch(text)} />
+                <Header />
 
                 <button className="sort" 
                     onClick={ () => this.sort()}>
                     Sort
                 </button>
 
-                <Cards missions={filteredData}  
-                     moreDetails={flightNumber => this.moreDetails(flightNumber)} 
-                     addToFavourites={ element => this.addToFavourites(element)}
-                />
+                <Cards missions={filteredData} />
 
-                <Favourites missions={favouritesData}  
-                        moreDetails={flightNumber => this.moreDetails(flightNumber)} 
-                />
+                <Favourites missions={favouritesData} />
             </Route>
 
             <Route exact path="/preview" >
@@ -164,4 +103,22 @@ class App extends React.Component {
   }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    data : state.data,
+    filteredData : state.filteredData,
+    favouritesData: state.favouritesData,
+    more: state.more,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onDataUpdate : (data, favouritesData) => dispatch({type: actionTypes.DATA_UPDATE , data: data, favouritesData : favouritesData }),
+    onFavouritesDataUpdate : favouritesData => dispatch({type: actionTypes.FAVOURITES_DATA_UPDATE , favouritesData: favouritesData}),
+    onFilteredDataUpdate : filteredData => dispatch({type: actionTypes.FILTER_DATA_UPDATE , filteredData: filteredData}),
+    onMoreUpdate : more => dispatch({type: actionTypes.MORE_UPDATE , more: more}),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
