@@ -1,45 +1,119 @@
 import React, {Component, Fragment} from 'react';
 import './App.scss';
+import uuid from 'react-uuid';
 
-import {Search} from './components/Search/Search';
+
+
+import {Cards} from './components/Cards/Cards';
+import {Preview} from './components/Preview/Preview';
 import {Header} from './components/Header/Header';
-import {Image} from './components/Image/Image';
-import {Main} from './components/Main/Main';
 
 class App extends Component {
 
 	state = {
-		key : "AIzaSyBWueneDpHbbvKAg6BHenPY--qjzeMtMZc",
-		data : '',
-		load: false,
+		data : [],
+		more : '',
+		filteredData : [],
 	}
 
-	sholudComponentUpdate(nextProps, nextState) {
-		if (nextState.load || nextState.data[0].snippet.title !== this.state.data[0].snippet.title) {
-			return true
+	componentDidMount(){
+		this.takeData();
+	}
+
+	sortFlights(a,b){
+		const nameA = a.mission_name.toLowerCase();
+		const nameB = b.mission_name.toLowerCase();
+
+		let comparison = 0;
+		if (nameA > nameB) {
+			comparison = 1;
+		} else if (nameA < nameB) {
+			comparison = -1;
 		}
-		return false
+
+		return comparison;
+	}
+
+	sort() {
+		const myArr = [...this.state.data];
+		const filterArr = [...this.state.filteredData];
+		myArr.sort(this.sortFlights);
+		filterArr.sort(this.sortFlights);
+		this.setState({
+			data : myArr,
+			filteredData : filterArr,
+		})
 	}
 
 	dataSearch(text) {
-		let request = `https://www.googleapis.com/youtube/v3/search?part=snippet&
-		type=video&maxResults=30&q=${text}&key=${this.state.key}`;
+		const filteredData = this.state.data.filter( item => {
+			return item.mission_name.toLowerCase().includes(text.toLowerCase().trim())
+		})
+	  	this.setState({
+	  		filteredData : filteredData,
+	  	})
+	}
+
+	moreDetails(flightNumber){
+		let request = `https://api.spacexdata.com/v3/launches/${flightNumber}`;
 		fetch(request)
 	  	.then( response => response.json())
-	  	.then( data => {
+	  	.then( myJson => {
 	  		this.setState({
-	  			data : data.items,
-	  			load: true,
+	  			more: myJson,
+	  		})
+	  	})
+	  	.catch( error => alert(`Error: ${error}`));
+
+	}
+
+	takeData() {
+		let request = `https://api.spacexdata.com/v3/launches`;
+		fetch(request)
+	  	.then( response => response.json())
+	  	.then( myJson => {
+	  		myJson.forEach( flight => {
+	  			flight.key = uuid();
+	  		})
+	  		this.setState({
+	  			data : myJson,
+	  			filteredData : myJson,
 	  		})
 	  	})
 	  	.catch( error => alert(`Error: ${error}`));
 	}
 
+	closePreview() {
+		this.setState({
+			more: '',
+		})
+	}
+
 	render() {
+		const {filteredData, more} = this.state;
+		const {flight_number, launch_year, mission_name, details, links, launch_success, rocket} = this.state.more;
+		
 		return (
 			<Fragment>
-				<Header getSearched={(text) => this.dataSearch(text)} />
-				<Main displayData={this.state.data} load={this.state.load} />
+				<Header  getSearched={(text) => this.dataSearch(text)} />
+				<Cards missions={filteredData}  
+					   moreDetails={flightNumber => this.moreDetails(flightNumber)} 
+				/>
+				<button className="sort" 
+						onClick={ () => this.sort()}>
+						Sort
+				</button>
+				{more && <Preview flightNumber={flight_number}
+								  launchYear={launch_year}
+								  missionName={mission_name}
+								  moreDetails={details}
+								  flightPic={links.flickr_images}
+								  launchSucces={launch_success}
+								  nationality={rocket.second_stage.payloads[0].nationality}
+								  closePreview={() => this.closePreview()}
+								  missionSimbol={links.mission_patch_small}
+						 /> 
+				}
 			</Fragment>
 		)
 	}

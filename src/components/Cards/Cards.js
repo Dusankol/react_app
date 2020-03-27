@@ -5,24 +5,20 @@ import uuid from 'react-uuid';
 
 class Cards extends Component{
 
-
-
-
 	render() {
-		const {onDelete, onDouble} = this.props;
+		const {moreDetails, missions} = this.props;
 		return (
 			<div className="cards">
-			{this.props.players.map( element => <Card 
-													key={element.id}
-													uniqueId={element.id}
-													name={element.name}
-													lastName={element.lastName}
-													age={element.age}
-													duplicate={element.copy}
-													onDelete={onDelete}
-													onDouble={onDouble}
-												/>
-									)
+			{missions.map( element => <Card 
+										key={element.key}
+										uniqueId={element.key}
+										flightNumber={element.flight_number}
+										launchYear={element.launch_year}
+										imageLink={element.links.mission_patch_small}
+										missionName={element.mission_name}
+										moreDetails={moreDetails}
+									  />
+						)
 			}
 			</div>
 		)

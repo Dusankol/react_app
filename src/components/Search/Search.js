@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {Button} from '../Button/Button'
 import './Search.scss'
 
 
@@ -7,11 +6,10 @@ class Search extends Component {
 
 	state = {
 		searchedTerm : '',
-		startSearch : false,
 	}
 
 	shouldComponentUpdate(nextProps, nextState) {
-		if (nextState.startSearch) {
+		if (nextState.searchedTerm !== this.state.searchedTerm) {
 			return true
 		}
 		return false
@@ -19,38 +17,26 @@ class Search extends Component {
 
 	componentDidUpdate(){
 		const {onDataSearch} = this.props;
-		onDataSearch(this.state.searchedTerm);
-		this.setState({
-			startSearch : false,
-		})
+		const {searchedTerm} = this.state;
+		onDataSearch(searchedTerm);
 	}
 
 	addValue(event) {
-		if (event.key === "Enter") {
-			this.setState({
-				startSearch : true,
-			})
-		} 
 		this.setState({
 			searchedTerm : event.target.value,
 		})
 	}
 
-	searchResults(value){
-		this.setState({
-			startSearch : value,
-		})
-	}
-
 	render() {
+		const {searchedTerm} = this.state;
 		return(
 			<section  className="search" >
 				<input type="text" 
+					   value={searchedTerm}
 					   placeholder="Search" 
 					   name="Search" 
-					   onKeyUp={(e) => this.addValue(e)} 
+					   onChange={ e => this.addValue(e)} 
 				/>
-				<Button beginSearch={(value) => this.searchResults(value)}/>
 			</section>
 		)
 	}
