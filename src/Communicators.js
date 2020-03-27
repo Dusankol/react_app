@@ -1,24 +1,25 @@
 
-
 class Communicators {
 
-		static baseURL="https://cubes-d7e5d.firebaseio.com/people.json";
-	
+	static baseURL = 'https://spacex-74dbe.firebaseio.com/spacex';
 
 	static Fetch = () => {
-
-		return fetch(Communicators.baseURL)
-				.then(response => response.json())
-
+		return fetch(`${Communicators.baseURL}.json`)
+	  		   .then( response => response.json());
 	}
 
-	static Post = (data) => {
-
-		return 	fetch(Communicators.baseURL,{
-				method: "POST",
-				body: JSON.stringify(data)
-		})
+	static Put = (element) => {
+		return fetch(`${Communicators.baseURL}/${element.id}.json`, {
+			      method: 'PUT',
+			      body: JSON.stringify(element)
+		        })
 	}
+
+	static More = (flightNumber) => {
+		return fetch(`https://api.spacexdata.com/v3/launches/${flightNumber}.json`)
+	  		   .then( response => response.json())
+	}
+
 }
 
-export {Communicators};
+export { Communicators };
