@@ -1,25 +1,28 @@
 import React, {Component} from 'react';
 import './Cards.scss';
 import {Card} from '../Card/Card';
+import uuid from 'react-uuid';
 
 class Cards extends Component{
 
+
+
+
 	render() {
-		const {moreDetails, missions, addToFavourites} = this.props;
+		const {onDelete, onDouble} = this.props;
 		return (
 			<div className="cards">
-			{missions.map( element => <Card 
-										key={element.id}
-										uniqueId={element.id}
-										flightNumber={element.flight_number}
-										launchYear={element.launch_year}
-										imageLink={element.links.mission_patch_small}
-										missionName={element.mission_name}
-										moreDetails={moreDetails}
-										addToFavourites={addToFavourites}
-										element={element}
-									  />
-						)
+			{this.props.players.map( element => <Card 
+													key={element.id}
+													uniqueId={element.id}
+													name={element.name}
+													lastName={element.lastName}
+													age={element.age}
+													duplicate={element.copy}
+													onDelete={onDelete}
+													onDouble={onDouble}
+												/>
+									)
 			}
 			</div>
 		)

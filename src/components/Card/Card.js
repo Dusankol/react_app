@@ -1,32 +1,20 @@
 import React, {Component} from 'react';
 import './Card.scss';
-import moreDet from '../../images/info.png';
-import favourites from '../../images/favourites.png';
-import fav from '../../images/fav.png';
+import copy from  '../../images/copy.png';
+import copySign from  '../../images/copySign.png';
 
 class Card extends Component{
 
-
 	render() {
-		const {missionName, uniqueId, flightNumber, launchYear, moreDetails, imageLink, addToFavourites, element} = this.props;
+		const {name, lastName, age, onDelete, uniqueId, onDouble, duplicate} = this.props;
 		return (
 			<div className="card">
-				<span>
-					<strong>Flight number:</strong><br/> &rarr; {flightNumber} 
-				</span>
-				<span>
-					<strong>Mission name:</strong><br/> &rarr; {missionName} 
-				</span>
-				<span>
-					<strong>Year:</strong><br/> &rarr; {launchYear} 
-				</span>
-				<img src={imageLink}/>
-				<div className="more" onClick={() => moreDetails(flightNumber)}>
-					<img src={moreDet} />
-				</div>
-				<div className="fav" onClick={() => addToFavourites(element)}>
-					<img src={element.favourite ? fav : favourites} />
-				</div>
+				<span>Name:<br/> {name} </span>
+				<span>Last name:<br/> {lastName} </span>
+				<span>Age: {age} </span>
+				<div className="delete" onClick={() => onDelete(uniqueId)}>X</div>
+				<div className="duplicate" onClick={() => onDouble(uniqueId)}><img src={copy}/></div>
+				{duplicate && <div className="duplikat"><img src={copySign}/></div>}
 			</div>
 		)
 	}

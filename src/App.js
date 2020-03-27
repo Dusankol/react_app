@@ -2,29 +2,88 @@ import React, {Component, Fragment} from 'react';
 import './App.scss';
 import uuid from 'react-uuid';
 
-import {Cards} from './components/Cards/Cards';
-import {Preview} from './components/Preview/Preview';
-import {Header} from './components/Header/Header';
-import {Favourites} from './components/Favourites/Favourites';
-import {Communicators} from './Communicators';
 
+
+import {Cards} from './components/Cards/Cards';
+import {Form} from './components/Form/Form';
+import {Header} from './components/Header/Header';
 
 class App extends Component {
 
 	state = {
-		data : [],
-		more : '',
-		filteredData : [],
-		favouritesData : [],
+		filteredData: [],
+		playersData :[
+			{
+				name : "Steve ",
+				lastName : "Kerr",
+				age: 30,
+				id: uuid(),
+			},
+			{
+				name : "Scottie",
+				lastName : "Pippen",
+				age: 30,
+				id: uuid(),
+			},
+			{
+				name : "Carlos",
+				lastName : "Tevez",
+				age: 35,
+				id: uuid(),
+			},
+			{
+				name : "Toni",
+				lastName : "Kukoc",
+				age: 27,
+				id: uuid(),
+			},
+			{
+				name : "Michael",
+				lastName : "Jordan",
+				age: 32,
+				id: uuid(),
+			},
+			{
+				name : "Dennis",
+				lastName : "Rodman",
+				age: 34,
+				id: uuid(),
+			},
+			{
+				name : "Ron",
+				lastName : "Harper",
+				age: 31,
+				id: uuid(),
+			},
+			{
+				name : "Luc",
+				lastName : "Longley",
+				age: 26,
+				id: uuid(),
+			}
+			
+		],
+		form : false,
+		searchedTerm: '',
 	}
 
 	componentDidMount(){
-		this.takeData();
+		const {playersData} = this.state;
+		this.setState({
+			filteredData: playersData,
+		})
 	}
 
-	sortFlights(a,b){
-		const nameA = a.mission_name.toLowerCase();
-		const nameB = b.mission_name.toLowerCase();
+	sholudComponentUpdate(nextProps, nextState) {
+		if (nextState.form !== this.state.form || nextState.filteredData.length !== this.state.filteredData.length) {
+			return true
+		}
+		return false
+	}
+
+	sortPlayers(a,b){
+		const nameA = a.name.toLowerCase();
+		const nameB = b.name.toLowerCase();
 
 		let comparison = 0;
 		if (nameA > nameB) {
@@ -37,126 +96,101 @@ class App extends Component {
 	}
 
 	sort() {
-		const myArr = [...this.state.data];
-		const filterArr = [...this.state.filteredData];
-		myArr.sort(this.sortFlights);
-		filterArr.sort(this.sortFlights);
+		const myArr = [...this.state.playersData];
+		myArr.sort(this.sortPlayers);
 		this.setState({
-			data : myArr,
-			filteredData : filterArr,
-		})
+			playersData : myArr,
+		}, () => this.searchAfterAddingPlayer())
 	}
 
-	dataSearch(text) {
-		const filteredData = this.state.data.filter( item => {
-			return item.mission_name.toLowerCase().includes(text.toLowerCase().trim())
+	searchAfterAddingPlayer() {
+		const filteredData = this.state.playersData.filter( item => {
+			return item.name.concat(item.lastName).toLowerCase().includes(this.state.searchedTerm.toLowerCase().trim())
 		})
 	  	this.setState({
 	  		filteredData : filteredData,
 	  	})
 	}
 
-	moreDetails(flightNumber){
-		Communicators.More(flightNumber)
-	  	.then( myJson => {
-	  		this.setState({
-	  			more: myJson,
-	  		})
+	dataSearch(text) {
+		const filteredData = this.state.playersData.filter( item => {
+			return item.name.concat(item.lastName).toLowerCase().includes(text.toLowerCase().trim())
+		})
+	  	this.setState({
+	  		filteredData : filteredData,
+	  		searchedTerm : text
 	  	})
-	  	.catch( error => alert(`Error: ${error}`));
 	}
 
-	takeData() {
-		Communicators.Fetch()
-	  	.then( myJson =>  {
-	  		const formatedData = this.formatData(myJson);
-	  		const favouriteData = formatedData.filter( item => item.favourite);
-	  		this.setState({
-	  			data : formatedData,
-	  			favouritesData : favouriteData,
-	  			filteredData : formatedData
-	  		})	
-	  	})
-	  	.catch( error => alert(`Error: ${error}`));
-	}
-
-	formatData(myData) {
-		const data = [];
-  		for(const property in myData) {
-  			data.push({
-  				...myData[property],
-  				id: property,
-  			});
-  		}
-
-  		data.forEach( item => {
-  			if(!item.links) {
-  				item.links = {};
-  				item.links.mission_patch_small = 'https://zenit.org/wp-content/uploads/2018/05/no-image-icon.png' ;
-  			}
-  		})
-
-  		return data
-	}
-
-	closePreview() {
+	openForm(){
 		this.setState({
-			more: '',
+			form: true,
 		})
 	}
 
-	takeFavourites() {
-		Communicators.Fetch()
-	  	.then( myJson =>  {
-	  		const formatedData = this.formatData(myJson);
-	  		const favouriteData = formatedData.filter( item => item.favourite);
-	  		this.setState({
-	  			favouritesData : favouriteData,
-	  		})	
-	  	})
-	  	.catch( error => alert(`Error: ${error}`));
+	addPlayer(somePlayer) {
+		const newTeam = [...this.state.playersData];
+		const {name, lastName, age} = somePlayer;
+		console.log("Name: " + name + " Lastname: " + lastName + " Age: " + age);
+		if (!(name && lastName && age)) {
+			alert("All fields must be filled !!!");
+			this.setState({
+				form: true,
+			})
+		} else {
+			newTeam.push(somePlayer);
+			console.log(newTeam);
+			this.setState({
+				playersData: newTeam,
+				form: false,
+			}, () => this.searchAfterAddingPlayer())
+			
+		}
 	}
 
-	addToFavourites(element) {
-		element.favourite = !element.favourite;
-		Communicators.Put(element)
-		.then((response) => {
-			if (response.ok) {
-				this.takeFavourites();
-			}
+	closeForm(value){
+		this.setState({
+			form:value,
 		})
-		.catch( error => alert(`Error: ${error}`));
+	}
+
+	onDelete(someId){
+		const myArrayOfObjects = this.state.playersData.filter( item => {
+			return item.id !== someId;
+		})
+		this.setState({
+			filteredData : myArrayOfObjects,
+			playersData :myArrayOfObjects,
+		})
+	}
+
+	onDouble(someId){
+		const isMyElement = element => element.id === someId;
+		const myIndex = this.state.playersData.findIndex(isMyElement);
+		const myArr = [...this.state.playersData];
+		const myElement = {...this.state.playersData[myIndex]};
+		myElement.id = uuid();
+		myElement.copy = true;
+		myArr.splice(myIndex + 1, 0, myElement);
+		this.setState({
+			playersData : myArr,
+		}, () => this.searchAfterAddingPlayer())
 	}
 
 	render() {
-		const {filteredData, more, favouritesData} = this.state;
-		const {flight_number, launch_year, mission_name, details, links, launch_success, rocket} = this.state.more;
-		
 		return (
 			<Fragment>
-				<Header  getSearched={text => this.dataSearch(text)} />
-				<Cards missions={filteredData}  
-					   moreDetails={flightNumber => this.moreDetails(flightNumber)} 
-					   addToFavourites={ element => this.addToFavourites(element)}
+				<Header  getSearched={(text) => this.dataSearch(text)} />
+				<Cards players={this.state.filteredData} 
+					   onDelete={someId => this.onDelete(someId)} 
+					   onDouble={someId => this.onDouble(someId)}  
 				/>
-				<button className="sort" 
-						onClick={ () => this.sort()}>
-						Sort
-				</button>
-				{more && <Preview flightNumber={flight_number}
-								  launchYear={launch_year}
-								  missionName={mission_name}
-								  moreDetails={details}
-								  flightPic={links.flickr_images}
-								  launchSucces={launch_success}
-								  nationality={rocket.second_stage.payloads[0].nationality}
-								  closePreview={() => this.closePreview()}
-								  missionSimbol={links.mission_patch_small}
-						 /> 
+				{this.state.form && <Form  addNewPlayer={ player => this.addPlayer(player)} 
+										   closeForm={ (value) => this.closeForm(value)}
+									/>
 				}
-				<Favourites missions={favouritesData}  
-					  		moreDetails={flightNumber => this.moreDetails(flightNumber)} 
-				/>
+				<button className="add" onClick={() => this.openForm()}>Add Player</button>
+				<button className="sort" onClick={ () => this.sort()}>Sort</button>
 			</Fragment>
 		)
 	}

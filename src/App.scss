@@ -9,12 +9,10 @@
 
 body {
 	position: relative;
-    padding: 0;
-    margin: 0;
-    background: url('./images/background.jpg');
-    background-attachment: fixed;
-    background-size: cover;
-    background-repeat: no-repeat;
+	padding: 0;
+	margin: 0;
+	background: #eee;
+	position: relative;
 	button{
 		&.add {
 		    position: fixed;
@@ -44,12 +42,10 @@ body {
 		    border: 1px solid black;
 		    cursor: pointer;
 		    outline: none;
-		    background-color: #051937;
-		    color: white;
 		    &:hover {
-		    	border: 1px solid #051937;
-		    	color: #051937;
-		    	background-color: #698231;
+		    	border: 1px solid gray;
+		    	color: white;
+		    	background-color: black;
 		    }
 		}
 	}
