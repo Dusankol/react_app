@@ -1,14 +1,11 @@
 import React, {Component} from 'react';
 import './Card.scss';
 import moreDet from '../../images/info.png';
-import favourites from '../../images/favourites.png';
-import fav from '../../images/fav.png';
 
 class Card extends Component{
 
-
 	render() {
-		const {missionName, uniqueId, flightNumber, launchYear, moreDetails, imageLink, addToFavourites, element} = this.props;
+		const {missionName, uniqueId, flightNumber, launchYear, moreDetails, imageLink} = this.props;
 		return (
 			<div className="card">
 				<span>
@@ -23,9 +20,6 @@ class Card extends Component{
 				<img src={imageLink}/>
 				<div className="more" onClick={() => moreDetails(flightNumber)}>
 					<img src={moreDet} />
-				</div>
-				<div className="fav" onClick={() => addToFavourites(element)}>
-					<img src={element.favourite ? fav : favourites} />
 				</div>
 			</div>
 		)

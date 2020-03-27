@@ -2,12 +2,11 @@ import React, {Component, Fragment} from 'react';
 import './App.scss';
 import uuid from 'react-uuid';
 
+
+
 import {Cards} from './components/Cards/Cards';
 import {Preview} from './components/Preview/Preview';
 import {Header} from './components/Header/Header';
-import {Favourites} from './components/Favourites/Favourites';
-import {Communicators} from './Communicators';
-
 
 class App extends Component {
 
@@ -15,7 +14,6 @@ class App extends Component {
 		data : [],
 		more : '',
 		filteredData : [],
-		favouritesData : [],
 	}
 
 	componentDidMount(){
@@ -57,46 +55,32 @@ class App extends Component {
 	}
 
 	moreDetails(flightNumber){
-		Communicators.More(flightNumber)
+		let request = `https://api.spacexdata.com/v3/launches/${flightNumber}`;
+		fetch(request)
+	  	.then( response => response.json())
 	  	.then( myJson => {
 	  		this.setState({
 	  			more: myJson,
 	  		})
 	  	})
 	  	.catch( error => alert(`Error: ${error}`));
+
 	}
 
 	takeData() {
-		Communicators.Fetch()
-	  	.then( myJson =>  {
-	  		const formatedData = this.formatData(myJson);
-	  		const favouriteData = formatedData.filter( item => item.favourite);
+		let request = `https://api.spacexdata.com/v3/launches`;
+		fetch(request)
+	  	.then( response => response.json())
+	  	.then( myJson => {
+	  		myJson.forEach( flight => {
+	  			flight.key = uuid();
+	  		})
 	  		this.setState({
-	  			data : formatedData,
-	  			favouritesData : favouriteData,
-	  			filteredData : formatedData
-	  		})	
+	  			data : myJson,
+	  			filteredData : myJson,
+	  		})
 	  	})
 	  	.catch( error => alert(`Error: ${error}`));
-	}
-
-	formatData(myData) {
-		const data = [];
-  		for(const property in myData) {
-  			data.push({
-  				...myData[property],
-  				id: property,
-  			});
-  		}
-
-  		data.forEach( item => {
-  			if(!item.links) {
-  				item.links = {};
-  				item.links.mission_patch_small = 'https://zenit.org/wp-content/uploads/2018/05/no-image-icon.png' ;
-  			}
-  		})
-
-  		return data
 	}
 
 	closePreview() {
@@ -105,39 +89,15 @@ class App extends Component {
 		})
 	}
 
-	takeFavourites() {
-		Communicators.Fetch()
-	  	.then( myJson =>  {
-	  		const formatedData = this.formatData(myJson);
-	  		const favouriteData = formatedData.filter( item => item.favourite);
-	  		this.setState({
-	  			favouritesData : favouriteData,
-	  		})	
-	  	})
-	  	.catch( error => alert(`Error: ${error}`));
-	}
-
-	addToFavourites(element) {
-		element.favourite = !element.favourite;
-		Communicators.Put(element)
-		.then((response) => {
-			if (response.ok) {
-				this.takeFavourites();
-			}
-		})
-		.catch( error => alert(`Error: ${error}`));
-	}
-
 	render() {
-		const {filteredData, more, favouritesData} = this.state;
+		const {filteredData, more} = this.state;
 		const {flight_number, launch_year, mission_name, details, links, launch_success, rocket} = this.state.more;
 		
 		return (
 			<Fragment>
-				<Header  getSearched={text => this.dataSearch(text)} />
+				<Header  getSearched={(text) => this.dataSearch(text)} />
 				<Cards missions={filteredData}  
 					   moreDetails={flightNumber => this.moreDetails(flightNumber)} 
-					   addToFavourites={ element => this.addToFavourites(element)}
 				/>
 				<button className="sort" 
 						onClick={ () => this.sort()}>
@@ -154,9 +114,6 @@ class App extends Component {
 								  missionSimbol={links.mission_patch_small}
 						 /> 
 				}
-				<Favourites missions={favouritesData}  
-					  		moreDetails={flightNumber => this.moreDetails(flightNumber)} 
-				/>
 			</Fragment>
 		)
 	}
