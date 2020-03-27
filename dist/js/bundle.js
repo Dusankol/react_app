@@ -81,32 +81,19 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/js/index.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.js");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/js/helper.js":
-/*!**************************!*\
-  !*** ./src/js/helper.js ***!
-  \**************************/
-/*! exports provided: text */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/index.js":
+/*!**********************!*\
+  !*** ./src/index.js ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
 
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"text\", function() { return text; });\nconst text = \"This is some text\";\r\n\r\n\n\n//# sourceURL=webpack:///./src/js/helper.js?");
-
-/***/ }),
-
-/***/ "./src/js/index.js":
-/*!*************************!*\
-  !*** ./src/js/index.js ***!
-  \*************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _helper_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helper.js */ \"./src/js/helper.js\");\n\r\n\r\nconsole.log(_helper_js__WEBPACK_IMPORTED_MODULE_0__[\"text\"])\n\n//# sourceURL=webpack:///./src/js/index.js?");
+eval("throw new Error(\"Module parse failed: Unexpected token (5:16)\\nYou may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders\\n| import App from './App';\\n| \\n> ReactDOM.render(<App />, document.getElementById('app'));\");\n\n//# sourceURL=webpack:///./src/index.js?");
 
 /***/ })
 

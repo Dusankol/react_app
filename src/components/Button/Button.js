@@ -1,22 +1,39 @@
-import React from "react";
-import "./Button.scss";
+import React, {Component} from 'react';
+import './Button.scss';
+import {Image} from '../Image/Image';
+import search from '../../images/search.png';
 
-const Button = ({children,type,click}) => {
-	const getClasses = () => {
-		if(type==="error"){
-			return "red"
-		}
-		if(type==="success"){
-			return "green"
-		}
-		else{
-			return "";
-		}
+class Button extends Component{
+
+	state = {
+		search: false,
 	}
 
-	return(
-			<button className={`button ${getClasses()}`} onClick={() => click()}>{children}</button>
-		)
+	shouldComponentUpdate(nextProps, nextState) {
+		if (nextState.search !== this.state.search) {
+			return true
+		}
+		return false
+	}
+
+	componentDidUpdate(){
+		const {beginSearch} = this.props;
+		beginSearch(this.state.search);
+	}
+	
+	proceedSearch(){
+		this.setState({
+			search: true
+		})
+	}
+
+	render() {
+		return (
+			<div onClick={() => this.proceedSearch()} className="button">
+				<img src={search} />
+			</div>
+		);	
+	}	
 }
 
-export default Button;
+export {Button};

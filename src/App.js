@@ -1,107 +1,48 @@
 import React, {Component, Fragment} from 'react';
-import "./App.scss";
-import Popup from "./components/Popup/Popup";
-import Form from "./components/Form/Form";
+import './App.scss';
 
-
-import {Header} from "./components/Header/Header";
-
-import {Cards} from "./components/Cards/Cards";
+import {Search} from './components/Search/Search';
+import {Header} from './components/Header/Header';
+import {Image} from './components/Image/Image';
+import {Main} from './components/Main/Main';
 
 class App extends Component {
 
 	state = {
+		key : "AIzaSyBWueneDpHbbvKAg6BHenPY--qjzeMtMZc",
+		data : '',
+		load: false,
+	}
 
-		data: [
-		{
-			name:"Peter",
-			lastName: "Dinklage",
-			age:50
-		},
-		{
-			name:"Lena",
-			lastName:"Headey",
-			age:46
-		},
-		{
-			name:"Emilia",
-			lastName:"Clarke",
-			age:33
+	sholudComponentUpdate(nextProps, nextState) {
+		if (nextState.load || nextState.data[0].snippet.title !== this.state.data[0].snippet.title) {
+			return true
 		}
-
-		],
-		filteredData: [],
-
-		openPopup: false
+		return false
 	}
 
-	componentDidMount() {
-		this.setState({
-			filteredData: this.state.data
-		})
-	}
-
-	componentDidUpdate(prevProps,prevState) {
-		if(prevState.data.length !== this.state.data.length){
-		this.setState({
-			filteredData: this.state.data
-		})
-	}}
-
-
-
-	filterData(searchResults){
-		this.setState({
-			filteredData: searchResults
-		})
-	}
-	
-	onPopupOpen(){
-		this.setState({
-			openPopup:true
-		})
-	}
-
-	onPopupClose(){
-		this.setState({
-			openPopup:false
-		})
-	}
-
-	onCardAdd(data) {
-		this.setState({
-			data: [
-				...this.state.data,
-				data
-			],
-			openPopup: false
-		})
+	dataSearch(text) {
+		let request = `https://www.googleapis.com/youtube/v3/search?part=snippet&
+		type=video&maxResults=30&q=${text}&key=${this.state.key}`;
+		fetch(request)
+	  	.then( response => response.json())
+	  	.then( data => {
+	  		this.setState({
+	  			data : data.items,
+	  			load: true,
+	  		})
+	  	})
+	  	.catch( error => alert(`Error: ${error}`));
 	}
 
 	render() {
-		const {header, data, filteredData, openPopup, popupClose}=this.state
 		return (
 			<Fragment>
-				<Header black search data={data}
-						onDataFilter={searchResults => this.filterData(searchResults)}>
-					
-				</Header>
-
-			
-
-				<Cards data={filteredData}
-					   openPopup={() => this.onPopupOpen()}
-				/>
-
-				{openPopup && (
-				 <Popup popupClose={() => this.onPopupClose()} title="Add new person">
-				 	<Form onFormSubmit={data => this.onCardAdd(data)}/>
-				 </Popup>)}
-				
+				<Header getSearched={(text) => this.dataSearch(text)} />
+				<Main displayData={this.state.data} load={this.state.load} />
 			</Fragment>
-			)
+		)
 	}
-
 }
 
 export default App;

@@ -1,40 +1,59 @@
-import React,{Component} from "react";
-import "./Search.scss";
+import React, {Component} from 'react';
+import {Button} from '../Button/Button'
+import './Search.scss'
 
-class Search extends Component{
 
-	state={
-		searchTerm: ""
+class Search extends Component {
+
+	state = {
+		searchedTerm : '',
+		startSearch : false,
 	}
 
-	componentDidUpdate(prevProps,prevState) {
-		if(prevState.searchTerm !== this.state.searchTerm){
-		this.filterData()}
+	shouldComponentUpdate(nextProps, nextState) {
+		if (nextState.startSearch) {
+			return true
+		}
+		return false
 	}
 
-	filterData() {
-		const {data,onDataFilter}=this.props;
-		const {searchTerm}=this.state;
-
-		const filteredData=data.filter(item => (
-			item.name.toLowerCase().includes(searchTerm.toLowerCase())))
-		onDataFilter(filteredData)
-	}
-
-	onSearchChange(e){
+	componentDidUpdate(){
+		const {onDataSearch} = this.props;
+		onDataSearch(this.state.searchedTerm);
 		this.setState({
-			searchTerm: e.target.value
+			startSearch : false,
 		})
 	}
 
-	render(){
-		return(
-			<input className="search" 
-			  onChange={(e) => this.onSearchChange(e)}
-			  value={this.state.searchTerm}	/>
+	addValue(event) {
+		if (event.key === "Enter") {
+			this.setState({
+				startSearch : true,
+			})
+		} 
+		this.setState({
+			searchedTerm : event.target.value,
+		})
+	}
 
-			)
-		}
+	searchResults(value){
+		this.setState({
+			startSearch : value,
+		})
+	}
+
+	render() {
+		return(
+			<section  className="search" >
+				<input type="text" 
+					   placeholder="Search" 
+					   name="Search" 
+					   onKeyUp={(e) => this.addValue(e)} 
+				/>
+				<Button beginSearch={(value) => this.searchResults(value)}/>
+			</section>
+		)
+	}
 }
 
-export{Search}
+export {Search};
